@@ -29,7 +29,7 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
         .csrf(csrf -> csrf.disable()) // Tắt CSRF
         .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Thêm cấu hình CORS
         .authorizeHttpRequests(authz -> authz
-            .requestMatchers("/auth/**").permitAll() // Cho phép đăng ký và đăng nhập
+            .requestMatchers("/auth/**", "/files/**").permitAll() // Cho phép đăng ký và đăng nhập và file ảnh ko cần xác thực
             .anyRequest().authenticated() // Yêu cầu xác thực cho các request khác
         )
         .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // Đảm bảo filter JWT chạy trước UsernamePasswordAuthenticationFilter
