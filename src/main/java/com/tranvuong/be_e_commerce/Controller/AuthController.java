@@ -10,12 +10,16 @@ import com.tranvuong.be_e_commerce.Entity.User;
 import com.tranvuong.be_e_commerce.Entity.Role;
 import com.tranvuong.be_e_commerce.Security.JwtUtil;
 import com.tranvuong.be_e_commerce.Services.Impl.UserServiceImpl;
+import com.tranvuong.be_e_commerce.dto.request.ForgotPasswordRequest;
 import com.tranvuong.be_e_commerce.dto.request.LoginRequest;
 import com.tranvuong.be_e_commerce.dto.request.RefreshTokenRequest;
+import com.tranvuong.be_e_commerce.dto.request.ResetPasswordRequest;
 import com.tranvuong.be_e_commerce.dto.response.JwtResponse;
 import com.tranvuong.be_e_commerce.dto.response.ResponseData;
 
 import java.util.Optional;
+import java.util.UUID;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/auth")
@@ -35,20 +39,23 @@ public class AuthController {
         String refreshToken = request.getRefreshToken();
 
         if (!jwtUtil.validateToken(refreshToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ResponseData("Refresh Token không hợp lệ hoặc đã hết hạn", 401, 401, null));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ResponseData("Refresh Token không hợp lệ hoặc đã hết hạn", 401, 401, null));
         }
 
         String email = jwtUtil.extractEmail(refreshToken);
         Optional<User> optionalUser = userService.getUserByEmail(email);
 
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseData("Không tìm thấy người dùng", 404, 404, null));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseData("Không tìm thấy người dùng", 404, 404, null));
         }
 
         User user = optionalUser.get();
         String newAccessToken = jwtUtil.generateAccessToken(email, user.getRole());
 
-        return ResponseEntity.ok(new ResponseData("Refresh Token thành công", 200, 200, new JwtResponse(newAccessToken)));
+        return ResponseEntity
+                .ok(new ResponseData("Refresh Token thành công", 200, 200, new JwtResponse(newAccessToken)));
     }
 
     // Đăng ký người dùng
@@ -76,13 +83,37 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ResponseData> loginUser(@RequestBody LoginRequest request) {
         return ResponseEntity.status(userService.login(request).getStatusCode())
-        .body(userService.login(request)); 
+                .body(userService.login(request));
     }
+
     // Đăng xuất người dùng
     @PostMapping("/logout")
     public ResponseEntity<ResponseData> logoutUser() {
         // Thường thì logout bằng cách xóa token hoặc xóa session trên phía client
-        // Trong trường hợp này, việc xóa token trên server là không cần thiết vì JWT là stateless
-        return ResponseEntity.ok(new ResponseData("Logout successful!", 200,200, null));
+        // Trong trường hợp này, việc xóa token trên server là không cần thiết vì JWT là
+        // stateless
+        return ResponseEntity.ok(new ResponseData("Logout successful!", 200, 200, null));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseData> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        try {
+            userService.sendResetPasswordEmail(request.getEmail());
+            return ResponseEntity.ok(new ResponseData("Reset password link sent.", 200, 200, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(new ResponseData(e.getMessage(), 400, 400, null));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResponseData> resetPassword(@RequestBody ResetPasswordRequest request) {
+        try {
+            userService.resetPassword(request.getToken(), request.getNewPassword());
+            return ResponseEntity.ok(new ResponseData("Password reset successfully.", 200, 200, null));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                .body(new ResponseData(e.getMessage(), 400, 400, null));
+        }
     }
 }

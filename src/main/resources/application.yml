@@ -1,5 +1,8 @@
 # spring.application.name=be_e-commerce
 
+app:
+  frontend-url: http://localhost:5173
+
 server:
   port: 8080
   servlet:
@@ -18,7 +21,20 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: tranvuong3101@gmail.com
+    password: ihtbkremfkzxyjnz
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
 jwt:
   secret-key: "0wyVcEIcIZR6ntVz/xbrFhH7l6izZZI8ob6mXhsPy42N2PMX5BJtg8ihVekV68tf"
   expiration-time: 3600000  # 1 giờ (milliseconds)

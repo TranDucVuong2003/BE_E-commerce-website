@@ -28,4 +28,10 @@ public interface UserService {
     //Login
     public ResponseData login(LoginRequest request) ;
     
+    // Gửi email đặt lại mật khẩu
+    public void sendResetPasswordEmail(String email);
+
+    // Đặt lại mật khẩu
+    public void resetPassword(String token, String newPassword);
+
 }
