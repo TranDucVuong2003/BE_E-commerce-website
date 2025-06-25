@@ -7,8 +7,8 @@ import com.tranvuong.be_e_commerce.dto.request.LoginRequest;
 import com.tranvuong.be_e_commerce.dto.response.ResponseData;
 
 public interface UserService {
- // Tìm user theo ID
-     public Optional<User> getUserById(String id) ;
+    // Tìm user theo ID
+    public Optional<User> getUserById(String id) ;
 
     // Tìm user theo email
     public Optional<User> getUserByEmail(String email) ;

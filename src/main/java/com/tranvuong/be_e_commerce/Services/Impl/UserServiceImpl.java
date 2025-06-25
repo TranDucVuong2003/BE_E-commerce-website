@@ -4,13 +4,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -190,6 +188,7 @@ public class UserServiceImpl implements UserService {
                 new AuthResponse(refreshToken, token, foundUser.getRole().name()));
     }
 
+    
     @Override
     @Transactional
     public void sendResetPasswordEmail(String email) {
@@ -232,7 +231,7 @@ public class UserServiceImpl implements UserService {
     private void sendEmail(String toEmail, String link) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("tranvuong3101@gmail.com");  // Thêm email người gửi
+            // message.setFrom("tranvuong3101@gmail.com");  // Thêm email người gửi
             message.setTo(toEmail);
             message.setSubject("Reset Password");
             message.setText("Click the link to reset your password: " + link);

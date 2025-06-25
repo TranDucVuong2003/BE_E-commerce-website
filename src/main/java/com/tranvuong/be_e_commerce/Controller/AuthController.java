@@ -18,8 +18,6 @@ import com.tranvuong.be_e_commerce.dto.response.JwtResponse;
 import com.tranvuong.be_e_commerce.dto.response.ResponseData;
 
 import java.util.Optional;
-import java.util.UUID;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/auth")
