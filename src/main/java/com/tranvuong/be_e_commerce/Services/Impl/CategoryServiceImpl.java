@@ -7,7 +7,10 @@ import com.tranvuong.be_e_commerce.Entity.Category;
 import com.tranvuong.be_e_commerce.Repository.CategoryRepository;
 import com.tranvuong.be_e_commerce.Services.CategoryService;
 import com.tranvuong.be_e_commerce.dto.response.ResponseData;
+
+import java.time.LocalDate;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -21,7 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public ResponseData getCategoryById(Long id) {
+    public ResponseData getCategoryById(String id) {
         Category category = categoryRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Category not found with ID: " + id));
         return new ResponseData("Success", 200, 200, category);
@@ -29,27 +32,52 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public ResponseData createCategory(Category category){
-        Category createdCategory = categoryRepository.save(category);
-        return new ResponseData("Success", 200, 200,createdCategory);
+        try {
+            Category newCategory = new Category();
+            
+            newCategory.setName(category.getName());
+            newCategory.setDescription(category.getDescription());
+            newCategory.setCreated_at(LocalDate.now());
+            
+            Category createdCategory = categoryRepository.save(newCategory);
+            return new ResponseData("Success", 200, 200,createdCategory);
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseData("Failed to create category", 400, 400, null);
+
+        }
 
     }
 
     @Override
-    public ResponseData updateCategory(Long id, Category category) {
+    public ResponseData updateCategory(String id, Category category) {
         Category existing = categoryRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Category not found with ID: " + id));
-        existing.setName(category.getName());
-        existing.setDescription(category.getDescription());
-        existing.setCreated_at(category.getCreated_at());
+        if (category.getName() != null) {
+            existing.setName(category.getName());
+        }
+        if (category.getDescription() != null) {
+            existing.setDescription(category.getDescription());
+        }
+        if (category.getCreated_at() != null) {
+            existing.setCreated_at(category.getCreated_at());
+        }
         return new ResponseData("Update Success", 200, 200, categoryRepository.save(existing));
     }
   
     @Override
-    public ResponseData deleteCategory(Long id) {
-        Category category = categoryRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("Category not found with ID: " + id));
-        categoryRepository.delete(category);
-        return new ResponseData("Delete success!", 200, 200, null);
+    public ResponseData deleteCategory(String id) {
+        try {
+            Optional<Category> category = categoryRepository.findById(id);
+            if (category.isPresent()) {
+                categoryRepository.deleteById(id);
+                return new ResponseData("Category deleted successfully", 200, 200, null);
+            } else {
+                return new ResponseData("Category not found", 404, 404, null);
+            }
+        } catch (Exception e) {
+            return new ResponseData("Failed to delete Category", 400, 400, null);
+        }
     }
     // public void deleteCategory(Long id);
 }

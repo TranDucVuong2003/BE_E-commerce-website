@@ -22,7 +22,7 @@ import lombok.experimental.FieldDefaults;
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-     String id;
+    String id;
     String name;
     String description;
     LocalDate created_at;

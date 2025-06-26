@@ -9,11 +9,11 @@ public interface CategoryService {
     //Lấy toàn bộ Category
     public ResponseData getAllCategories();
 
-    public ResponseData getCategoryById(Long id);
+    public ResponseData getCategoryById(String id);
 
     public ResponseData createCategory(Category category);
 
-    public ResponseData updateCategory(Long id, Category category);
+    public ResponseData updateCategory(String id, Category category);
     
-    public ResponseData deleteCategory(Long id);
+    public ResponseData deleteCategory(String id);
 }
