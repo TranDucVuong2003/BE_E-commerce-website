@@ -14,10 +14,10 @@ public interface UserService {
     public Optional<User> getUserByEmail(String email) ;
 
     // Lưu user mới (Đăng ký)
-    public User saveUser(User user) ;
+    public ResponseData createUser(User user) ;
 
     // Xóa user
-    public void deleteUser(String id) ;
+    public ResponseData deleteUser(String id) ;
 
     // Lấy tất cả User
     public ResponseData getAllUsers() ;

@@ -1,5 +1,6 @@
 package com.tranvuong.be_e_commerce.Services.Impl;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -65,15 +66,40 @@ public class UserServiceImpl implements UserService {
 
     @Override
     // Lưu user mới (Đăng ký)
-    public User saveUser(User user) {
-        return userRepository.save(user);
+    public ResponseData createUser(User user) {
+        try {
+            User newUser = new User();
+
+            newUser.setName(user.getName());
+            newUser.setEmail(user.getEmail());
+            newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+            newUser.setRole(user.getRole());
+            newUser.setCreated_at(LocalDate.now());
+
+            User createdUser = userRepository.save(newUser);
+            return new ResponseData("User created successfully", 200, 200, createdUser);
+        } catch (Exception e) {
+            // TODO: handle exception
+            return new ResponseData("Failed to create user", 400, 400, null);
+        }
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class) // Đảm bảo rollback nếu có lỗi xảy ra
     // Xóa user
-    public void deleteUser(String id) {
-        userRepository.deleteById(id);
+    public ResponseData deleteUser(String id) {
+        // userRepository.deleteById(id);
+        try {
+            Optional<User> user = userRepository.findById(id);
+            if (user.isPresent()) {
+                userRepository.deleteById(id);
+                return new ResponseData("User deleted successfully", 200, 200, null);
+            } else {
+                return new ResponseData("User not found", 404, 404, null);
+            }
+        } catch (Exception e) {
+            return new ResponseData("Failed to delete User", 400, 400, null);
+        }
     }
 
     @Override

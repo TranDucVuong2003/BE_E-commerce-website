@@ -26,17 +26,6 @@ public class User {
     private Role role;
 
     private LocalDate created_at;
-
-
-
-
-
-
-
-
-
-
-
     
     // No-args constructor
     public User() {

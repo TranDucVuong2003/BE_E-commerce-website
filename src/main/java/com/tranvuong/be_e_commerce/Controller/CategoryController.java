@@ -37,14 +37,14 @@ public class CategoryController {
     }
 
     // Lấy theo id
-    @GetMapping("/id/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ResponseData> getCategoryById(@PathVariable String id) {
         ResponseData categories = categoryService.getCategoryById(id);
         return ResponseEntity.status(categories.getStatusCode()).body(categories);
     }
 
     // Xóa category theo id
-    @DeleteMapping("/id/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ResponseData> deleteCategoryById(@PathVariable String id){
         try {
             // Lấy thông tin category trước khi xáo
@@ -66,7 +66,7 @@ public class CategoryController {
     }
 
     //Update category
-    @PutMapping("/id/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ResponseData> updateCategory(@PathVariable String id, @RequestBody Category category) {
         try {
             ResponseData response = categoryService.updateCategory(id, category);

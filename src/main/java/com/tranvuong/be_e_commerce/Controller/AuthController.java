@@ -56,26 +56,26 @@ public class AuthController {
                 .ok(new ResponseData("Refresh Token thành công", 200, 200, new JwtResponse(newAccessToken)));
     }
 
-    // Đăng ký người dùng
-    @PostMapping("/register")
-    public ResponseEntity<ResponseData> registerUser(@RequestBody User user) {
-        // Mã hóa mật khẩu trước khi lưu
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    // // Đăng ký người dùng
+    // @PostMapping("/register")
+    // public ResponseEntity<ResponseData> registerUser(@RequestBody User user) {
+    //     // Mã hóa mật khẩu trước khi lưu
+    //     user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        // Kiểm tra nếu email đã tồn tại
-        if (userService.getUserByEmail(user.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body(new ResponseData("Email already exists.", 400, 400, null));
-        }
+    //     // Kiểm tra nếu email đã tồn tại
+    //     if (userService.getUserByEmail(user.getEmail()).isPresent()) {
+    //         return ResponseEntity.badRequest().body(new ResponseData("Email already exists.", 400, 400, null));
+    //     }
 
-        // Set role mặc định là USER nếu role chưa được set
-        if (user.getRole() == null) {
-            user.setRole(Role.USER);
-        }
+    //     // Set role mặc định là USER nếu role chưa được set
+    //     if (user.getRole() == null) {
+    //         user.setRole(Role.USER);
+    //     }
 
-        // Lưu người dùng mới vào cơ sở dữ liệu
-        User savedUser = userService.saveUser(user);
-        return ResponseEntity.ok(new ResponseData("User registered successfully", 200, 200, savedUser));
-    }
+    //     // Lưu người dùng mới vào cơ sở dữ liệu
+    //     User savedUser = userService.createUser(user);
+    //     return ResponseEntity.ok(new ResponseData("User registered successfully", 200, 200, savedUser));
+    // }
 
     // Đăng nhập
     @PostMapping("/login")

@@ -20,7 +20,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<ResponseData> getAllUsers() {
         ResponseData users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.status(users.getStatusCode()).body(users);
     }
 
     // Lấy thông tin người dùng theo ID
@@ -42,18 +42,18 @@ public class UserController {
     // Tạo người dùng mới
     @PostMapping
     public ResponseEntity<ResponseData> createUser(@RequestBody User user) {
-        User savedUser = userService.saveUser(user);
-        return ResponseEntity.ok(new ResponseData("User created successfully", 200, 200, savedUser));
+        ResponseData savedUser = userService.createUser(user);
+        return ResponseEntity.status(savedUser.getStatusCode()).body(savedUser);
     }
 
     // Xóa người dùng theo ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable String id) {
+    public ResponseEntity<ResponseData> deleteUser(@PathVariable String id) {
         if (userService.getUserById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        userService.deleteUser(id);
-        return ResponseEntity.ok("User deleted successfully.");
+        ResponseData deletedUser = userService.deleteUser(id);
+        return ResponseEntity.status(deletedUser.getStatusCode()).body(deletedUser);
     }
 
     // Cập nhật thông tin người dùng theo ID
