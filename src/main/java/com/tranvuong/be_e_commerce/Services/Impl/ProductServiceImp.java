@@ -78,25 +78,33 @@ public class ProductServiceImp implements ProductService {
             if (product.isPresent()) {
                 Product product1 = product.get();
                 // xử lý với product
-                product1.setName(productRequest.getName());
-                product1.setDescription(productRequest.getDescription());
-                product1.setCategory_id(productRequest.getCategory_id());
-                product1.setPrice(productRequest.getPrice());
-                product1.setStock(productRequest.isStock());
-                product1.setImages(productRequest.getImages());
-                product1.setCreated_at(LocalDate.now());
-
-                // Xóa hết variant cũ
-                List<ProductVariant> variants = product1.getProductVariants();
-                variants.clear();
-                List<ProductVariant> newVariants = productRequest.getProductVariants().stream().map(variantDto -> {
-                    ProductVariant variant = new ProductVariant();
-                    variant.setSize(variantDto.getSize());
-                    variant.setQuantity(variantDto.getQuantity());
-                    variant.setProduct(product1);
-                    return variant;
-                }).collect(Collectors.toList());
-                variants.addAll(newVariants);
+                if (productRequest.getName() != null) {
+                    product1.setName(productRequest.getName());
+                }
+                if (productRequest.getDescription() != null) {
+                    product1.setDescription(productRequest.getDescription());
+                }
+                if (productRequest.getCategory_id() != null) {
+                    product1.setCategory_id(productRequest.getCategory_id());
+                }
+                if (productRequest.getPrice() != null) {
+                    product1.setPrice(productRequest.getPrice());
+                }
+                if (productRequest.getImages() != null) {
+                    product1.setImages(productRequest.getImages());
+                }
+                if (productRequest.getProductVariants() != null) {
+                    List<ProductVariant> variants = product1.getProductVariants();
+                    variants.clear();
+                    List<ProductVariant> newVariants = productRequest.getProductVariants().stream().map(variantDto -> {
+                        ProductVariant variant = new ProductVariant();
+                        variant.setSize(variantDto.getSize());
+                        variant.setQuantity(variantDto.getQuantity());
+                        variant.setProduct(product1);
+                        return variant;
+                    }).collect(Collectors.toList());
+                    variants.addAll(newVariants);
+                }
 
                 Product savedProduct = productRepository.save(product1);
 

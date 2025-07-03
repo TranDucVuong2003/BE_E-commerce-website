@@ -48,13 +48,13 @@ public class ProductController {
     // Tạo sản phẩm mới
     @PostMapping
     public ResponseEntity<ResponseData> createProduct(
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("category_id") String categoryId,
-            @RequestParam("price") Double price,
-            @RequestParam("stock") Boolean stock,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "category_id", required = false) String categoryId,
+            @RequestParam(value = "price", required = false) Double price,
+            @RequestParam(value = "stock", required = false) Boolean stock,
             @RequestParam(value = "images", required = false) List<MultipartFile> files,
-            @RequestParam("variants") String variantsJson
+            @RequestParam(value = "variants", required = false) String variantsJson
     ) {
         try {
             List<String> imageNames = new ArrayList<>();
@@ -98,13 +98,13 @@ public class ProductController {
     @PutMapping("/{id}")
     public ResponseEntity<ResponseData> updateProductWithImages(
             @PathVariable String id,
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("category_id") String categoryId,
-            @RequestParam("price") Double price,
-            @RequestParam("stock") Boolean stock,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "category_id", required = false) String categoryId,
+            @RequestParam(value = "price", required = false) Double price,
+            @RequestParam(value = "stock", required = false) Boolean stock,
             @RequestParam(value = "images", required = false) List<MultipartFile> files,
-            @RequestParam("variants") String variantsJson
+            @RequestParam(value = "variants", required = false) String variantsJson
     ) {
         try {
             // Lấy Product entity trực tiếp từ repository
