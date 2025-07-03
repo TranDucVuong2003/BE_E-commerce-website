@@ -8,9 +8,9 @@ public class ProductRequest {
     private String name;
     private String description;
     private String category_id;
-    private String size;
+    private List<ProductVariantDto> productVariants;
     private Double price;
-    private Double quantity;
     private boolean stock;
     private List<String> images;
 } 
+

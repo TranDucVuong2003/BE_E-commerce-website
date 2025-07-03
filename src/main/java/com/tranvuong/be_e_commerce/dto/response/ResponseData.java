@@ -16,6 +16,5 @@ public class ResponseData {
     String message;
     int statusCode;
     int errorCode;
-
     Object data;
 }

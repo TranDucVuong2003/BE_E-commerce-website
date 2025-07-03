@@ -1,15 +1,21 @@
 package com.tranvuong.be_e_commerce.Services.Impl;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tranvuong.be_e_commerce.Entity.Product;
+import com.tranvuong.be_e_commerce.Entity.ProductVariant;
 import com.tranvuong.be_e_commerce.Repository.ProductRepository;
+import com.tranvuong.be_e_commerce.Repository.ProductVariantRepository;
 import com.tranvuong.be_e_commerce.Services.ProductService;
 import com.tranvuong.be_e_commerce.dto.request.ProductRequest;
+import com.tranvuong.be_e_commerce.dto.request.ProductVariantDto;
+import com.tranvuong.be_e_commerce.dto.response.ProductResponse;
 import com.tranvuong.be_e_commerce.dto.response.ResponseData;
 
 import jakarta.transaction.Transactional;
@@ -20,11 +26,14 @@ public class ProductServiceImp implements ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-
+    @Autowired
+    private ProductVariantRepository productVariantRepository;
 
     @Override
     public ResponseData getAllProducts() {
-        return new ResponseData("Success", 200, 200, productRepository.findAll());
+        return new ResponseData("Success", 200, 200, productRepository.findAll().stream()
+                .map(this::mapToProductResponse)
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -36,12 +45,21 @@ public class ProductServiceImp implements ProductService {
             product.setName(productRequest.getName());
             product.setDescription(productRequest.getDescription());
             product.setCategory_id(productRequest.getCategory_id());
-            product.setSize(productRequest.getSize());
             product.setPrice(productRequest.getPrice());
-            product.setQuantity(productRequest.getQuantity());
             product.setStock(productRequest.isStock());
             product.setImages(productRequest.getImages());
             product.setCreated_at(LocalDate.now());
+
+            // Map từ DTO sang entity
+            List<ProductVariant> variants = productRequest.getProductVariants().stream().map(variantDto -> {
+                ProductVariant variant = new ProductVariant();
+                variant.setSize(variantDto.getSize());
+                variant.setQuantity(variantDto.getQuantity());
+                variant.setProduct(product); // thiết lập quan hệ ngược
+                return variant;
+            }).collect(Collectors.toList());
+
+            product.setProductVariants(variants);
 
             Product savedProduct = productRepository.save(product);
 
@@ -53,9 +71,9 @@ public class ProductServiceImp implements ProductService {
 
     @Override
     @Transactional
-    public ResponseData updateProduct(ProductRequest productRequest, String id ){
+    public ResponseData updateProduct(ProductRequest productRequest, String id) {
         try {
-             
+
             Optional<Product> product = productRepository.findById(id);
             if (product.isPresent()) {
                 Product product1 = product.get();
@@ -63,15 +81,25 @@ public class ProductServiceImp implements ProductService {
                 product1.setName(productRequest.getName());
                 product1.setDescription(productRequest.getDescription());
                 product1.setCategory_id(productRequest.getCategory_id());
-                product1.setSize(productRequest.getSize());
                 product1.setPrice(productRequest.getPrice());
-                product1.setQuantity(productRequest.getQuantity());
                 product1.setStock(productRequest.isStock());
                 product1.setImages(productRequest.getImages());
                 product1.setCreated_at(LocalDate.now());
-    
+
+                // Xóa hết variant cũ
+                List<ProductVariant> variants = product1.getProductVariants();
+                variants.clear();
+                List<ProductVariant> newVariants = productRequest.getProductVariants().stream().map(variantDto -> {
+                    ProductVariant variant = new ProductVariant();
+                    variant.setSize(variantDto.getSize());
+                    variant.setQuantity(variantDto.getQuantity());
+                    variant.setProduct(product1);
+                    return variant;
+                }).collect(Collectors.toList());
+                variants.addAll(newVariants);
+
                 Product savedProduct = productRepository.save(product1);
-    
+
                 return new ResponseData("Product update successfully", 200, 200, savedProduct);
             } else {
                 // xử lý trường hợp không tìm thấy
@@ -100,18 +128,40 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    public ResponseData getProductById(String id){
+    public ResponseData getProductById(String id) {
         try {
             Optional<Product> product = productRepository.findById(id);
-            if(product.isPresent()){
-                return new ResponseData("Product found successfully", 200, 200, product.get());
-            }else{
+            if (product.isPresent()) {
+                return new ResponseData("Product found successfully", 200, 200, mapToProductResponse(product.get()));
+            } else {
                 return new ResponseData("Product not found", 404, 404, null);
             }
         } catch (Exception e) {
             // TODO: handle exception
             return new ResponseData("Error occurred while fetching product", 500, 500, null);
         }
+    }
+
+    // Mapping từ Entity sang DTO khi trả về
+    public ProductResponse mapToProductResponse(Product product) {
+        ProductResponse response = new ProductResponse();
+        response.setId(product.getId());
+        response.setName(product.getName());
+        response.setDescription(product.getDescription());
+        response.setCategoryId(product.getCategory_id());
+        response.setPrice(product.getPrice());
+        response.setStock(product.isStock());
+        response.setImages(product.getImages());
+
+        List<ProductVariantDto> variantDtos = product.getProductVariants().stream().map(variant -> {
+            ProductVariantDto dto = new ProductVariantDto();
+            dto.setSize(variant.getSize());
+            dto.setQuantity(variant.getQuantity());
+            return dto;
+        }).collect(Collectors.toList());
+
+        response.setProductVariants(variantDtos);
+        return response;
     }
 
 }

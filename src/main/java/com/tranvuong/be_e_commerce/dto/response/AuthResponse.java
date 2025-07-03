@@ -16,6 +16,4 @@ public class AuthResponse {
  String refreshToken;
  String token;
  String role;
-
-   
 }
