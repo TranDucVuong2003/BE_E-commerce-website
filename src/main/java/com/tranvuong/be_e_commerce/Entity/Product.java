@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -42,6 +44,7 @@ public class Product implements Serializable {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductVariant> productVariants;
 
+    private String mainImage;
     // Lưu trực tiếp dưới dạng List
     @Column(columnDefinition = "TEXT")
     @Convert(converter = StringListConverter.class)

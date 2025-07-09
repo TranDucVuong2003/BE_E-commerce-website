@@ -26,8 +26,8 @@ public class ProductServiceImp implements ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    @Autowired
-    private ProductVariantRepository productVariantRepository;
+    // @Autowired
+    // private ProductVariantRepository productVariantRepository;
 
     @Override
     public ResponseData getAllProducts() {
@@ -47,6 +47,7 @@ public class ProductServiceImp implements ProductService {
             product.setCategory_id(productRequest.getCategory_id());
             product.setPrice(productRequest.getPrice());
             product.setStock(productRequest.isStock());
+            product.setMainImage(productRequest.getMainImage());
             product.setImages(productRequest.getImages());
             product.setCreated_at(LocalDate.now());
 
@@ -89,6 +90,9 @@ public class ProductServiceImp implements ProductService {
                 }
                 if (productRequest.getPrice() != null) {
                     product1.setPrice(productRequest.getPrice());
+                }
+                if (productRequest.getMainImage() != null) {
+                    product1.setMainImage(productRequest.getMainImage());
                 }
                 if (productRequest.getImages() != null) {
                     product1.setImages(productRequest.getImages());
@@ -159,6 +163,7 @@ public class ProductServiceImp implements ProductService {
         response.setCategoryId(product.getCategory_id());
         response.setPrice(product.getPrice());
         response.setStock(product.isStock());
+        response.setMainImage(product.getMainImage());
         response.setImages(product.getImages());
 
         List<ProductVariantDto> variantDtos = product.getProductVariants().stream().map(variant -> {

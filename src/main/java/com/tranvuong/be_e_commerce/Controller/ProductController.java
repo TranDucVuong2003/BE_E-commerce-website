@@ -53,10 +53,12 @@ public class ProductController {
             @RequestParam(value = "category_id", required = false) String categoryId,
             @RequestParam(value = "price", required = false) Double price,
             @RequestParam(value = "stock", required = false) Boolean stock,
+            @RequestParam(value = "mainImage", required = false) MultipartFile mainImageFile,
             @RequestParam(value = "images", required = false) List<MultipartFile> files,
-            @RequestParam(value = "variants", required = false) String variantsJson
-    ) {
+            @RequestParam(value = "variants", required = false) String variantsJson) {
         try {
+
+            // Lưu ảnh
             List<String> imageNames = new ArrayList<>();
             if (files != null && !files.isEmpty()) {
                 for (MultipartFile file : files) {
@@ -70,12 +72,14 @@ public class ProductController {
                 }
             }
 
+            // Lưu ảnh chính
+            String mainImageName = fileStorageService.storeFile(mainImageFile);
+
             // Parse variantsJson thành List<ProductVariantDto>
             ObjectMapper objectMapper = new ObjectMapper();
             List<ProductVariantDto> productVariants = objectMapper.readValue(
                     variantsJson,
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, ProductVariantDto.class)
-            );
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, ProductVariantDto.class));
 
             ProductRequest productRequest = new ProductRequest();
             productRequest.setName(name);
@@ -83,6 +87,7 @@ public class ProductController {
             productRequest.setCategory_id(categoryId);
             productRequest.setPrice(price);
             productRequest.setStock(stock);
+            productRequest.setMainImage(mainImageName);
             productRequest.setImages(imageNames);
             productRequest.setProductVariants(productVariants);
 
@@ -104,8 +109,7 @@ public class ProductController {
             @RequestParam(value = "price", required = false) Double price,
             @RequestParam(value = "stock", required = false) Boolean stock,
             @RequestParam(value = "images", required = false) List<MultipartFile> files,
-            @RequestParam(value = "variants", required = false) String variantsJson
-    ) {
+            @RequestParam(value = "variants", required = false) String variantsJson) {
         try {
             // Lấy Product entity trực tiếp từ repository
             java.util.Optional<Product> productOpt = productRepository.findById(id);
@@ -146,8 +150,7 @@ public class ProductController {
             ObjectMapper objectMapper = new ObjectMapper();
             List<ProductVariantDto> productVariants = objectMapper.readValue(
                     variantsJson,
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, ProductVariantDto.class)
-            );
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, ProductVariantDto.class));
 
             ProductRequest productRequest = new ProductRequest();
             productRequest.setName(name);
