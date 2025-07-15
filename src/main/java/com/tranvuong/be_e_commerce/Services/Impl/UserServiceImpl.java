@@ -85,20 +85,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class) // Đảm bảo rollback nếu có lỗi xảy ra
-    // Xóa user
+    @Transactional(rollbackFor = Exception.class)
     public ResponseData deleteUser(String id) {
-        // userRepository.deleteById(id);
         try {
             Optional<User> user = userRepository.findById(id);
             if (user.isPresent()) {
+                // XÓA TẤT CẢ TOKEN liên quan trước
+                passwordResetTokenRepository.deleteByUser(user.get());
                 userRepository.deleteById(id);
                 return new ResponseData("User deleted successfully", 200, 200, null);
             } else {
                 return new ResponseData("User not found", 404, 404, null);
             }
         } catch (Exception e) {
-            return new ResponseData("Failed to delete User", 400, 400, null);
+            return new ResponseData("Failed to delete User: " + e.getMessage(), 400, 400, null);
         }
     }
 
@@ -192,6 +192,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    
     @Override
     // Login
     public ResponseData login(LoginRequest request) {
@@ -215,6 +216,7 @@ public class UserServiceImpl implements UserService {
     }
 
     
+
     @Override
     @Transactional
     public void sendResetPasswordEmail(String email) {
@@ -254,6 +256,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
     private void sendEmail(String toEmail, String link) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -266,6 +269,7 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Failed to send email: " + e.getMessage());
         }
     }
+
 
     @Override
     @Transactional
