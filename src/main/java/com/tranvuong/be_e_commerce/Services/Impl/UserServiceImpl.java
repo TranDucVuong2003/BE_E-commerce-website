@@ -208,7 +208,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // Tạo JWT token kèm role
-        String token = jwtUtil.generateAccessToken(foundUser.getEmail(), foundUser.getRole());
+        String token = jwtUtil.generateAccessToken(foundUser.getId(),foundUser.getEmail(), foundUser.getRole());
         String refreshToken = jwtUtil.generateRefreshToken(foundUser.getEmail());
 
         return new ResponseData("Login successful.", 200, 0,

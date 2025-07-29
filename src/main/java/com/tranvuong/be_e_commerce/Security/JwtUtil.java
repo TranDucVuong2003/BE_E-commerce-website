@@ -21,8 +21,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 
 import org.springframework.beans.factory.annotation.Value;
-
-
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 @Slf4j
@@ -38,12 +37,13 @@ public class JwtUtil {
      private long EXPIRATION_TIME;
 
      // Tạo token từ email
-     public String generateAccessToken(String email, Role role) {
+     public String generateAccessToken(String userId, String email, Role role) {
           try {
                JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
 
                JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                         .subject(email)
+                         .subject(userId) // Lưu userId vào subject
+                         .claim("email", email) // Lưu email vào claim "email"
                          .issuer("tranvuong.com")
                          .issueTime(new Date())
                          .expirationTime(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
@@ -64,46 +64,55 @@ public class JwtUtil {
      // Tạo refresh token từ email
      public String generateRefreshToken(String email) {
           try {
-              JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
-              JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                      .subject(email)
-                      .issuer("tranvuong.com")
-                      .issueTime(new Date())
-                      .expirationTime(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
-                      .build();
-      
-              Payload payload = new Payload(claimsSet.toJSONObject());
-              JWSObject jwsObject = new JWSObject(header, payload);
-              jwsObject.sign(new MACSigner(SECRET_KEY.getBytes()));
-      
-              return jwsObject.serialize();
-          } catch (Exception e) {
-              throw new RuntimeException("Lỗi tạo Refresh Token", e);
-          }
-      }
-      
+               JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
+               JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                         .subject(email)
+                         .issuer("tranvuong.com")
+                         .issueTime(new Date())
+                         .expirationTime(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
+                         .build();
 
-     // Trích xuất email từ token
-     public String extractEmail(String token) {
+               Payload payload = new Payload(claimsSet.toJSONObject());
+               JWSObject jwsObject = new JWSObject(header, payload);
+               jwsObject.sign(new MACSigner(SECRET_KEY.getBytes()));
+
+               return jwsObject.serialize();
+          } catch (Exception e) {
+               throw new RuntimeException("Lỗi tạo Refresh Token", e);
+          }
+     }
+
+     // Lấy userId từ subject
+     public String extractUserId(String token) {
           try {
                JWSObject jwsObject = JWSObject.parse(token);
                JWTClaimsSet claimsSet = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
                return claimsSet.getSubject();
           } catch (ParseException e) {
-               log.error("Lỗi khi trích xuất email từ token", e);
+               throw new RuntimeException("Lỗi khi trích xuất userId từ token", e);
+          }
+     }
+
+     // Lấy email từ claim "email"
+     public String extractEmail(String token) {
+          try {
+               JWSObject jwsObject = JWSObject.parse(token);
+               JWTClaimsSet claimsSet = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
+               return claimsSet.getStringClaim("email");
+          } catch (ParseException e) {
                throw new RuntimeException("Lỗi khi trích xuất email từ token", e);
           }
      }
 
      public String extractRole(String token) {
           try {
-              JWSObject jwsObject = JWSObject.parse(token);
-              JWTClaimsSet claimsSet = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
-              return claimsSet.getStringClaim("role");  // Lấy role từ token
+               JWSObject jwsObject = JWSObject.parse(token);
+               JWTClaimsSet claimsSet = JWTClaimsSet.parse(jwsObject.getPayload().toJSONObject());
+               return claimsSet.getStringClaim("role"); // Lấy role từ token
           } catch (Exception e) {
-              throw new RuntimeException("Lỗi khi trích xuất role từ token", e);
+               throw new RuntimeException("Lỗi khi trích xuất role từ token", e);
           }
-      }
+     }
 
      // Kiểm tra token hợp lệ
      public boolean validateToken(String token) {
@@ -133,6 +142,15 @@ public class JwtUtil {
      }
 
      public List<SimpleGrantedAuthority> getAuthorities(String role) {
-         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
+          return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
+     }
+
+     //
+     public String extractTokenFromRequest(HttpServletRequest request) {
+          String bearerToken = request.getHeader("Authorization");
+          if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+               return bearerToken.substring(7);
+          }
+          return null;
      }
 }

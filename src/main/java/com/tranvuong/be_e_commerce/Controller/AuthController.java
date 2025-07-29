@@ -42,6 +42,7 @@ public class AuthController {
         }
 
         String email = jwtUtil.extractEmail(refreshToken);
+        String userId = jwtUtil.extractUserId(refreshToken);
         Optional<User> optionalUser = userService.getUserByEmail(email);
 
         if (optionalUser.isEmpty()) {
@@ -50,7 +51,7 @@ public class AuthController {
         }
 
         User user = optionalUser.get();
-        String newAccessToken = jwtUtil.generateAccessToken(email, user.getRole());
+        String newAccessToken = jwtUtil.generateAccessToken(userId, email, user.getRole());
 
         return ResponseEntity
                 .ok(new ResponseData("Refresh Token thành công", 200, 200, new JwtResponse(newAccessToken)));

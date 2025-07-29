@@ -1,6 +1,7 @@
 package com.tranvuong.be_e_commerce.Controller;
 
 import com.tranvuong.be_e_commerce.Entity.User;
+import com.tranvuong.be_e_commerce.Security.JwtUtil;
 import com.tranvuong.be_e_commerce.Services.Impl.UserServiceImpl;
 import com.tranvuong.be_e_commerce.dto.response.ResponseData;
 
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -15,6 +18,9 @@ public class UserController {
 
     @Autowired
     private UserServiceImpl userService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     // Lấy tất cả người dùng
     @GetMapping
@@ -39,6 +45,22 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // Lấy thông tin người dùng đang đăng nhập
+    @GetMapping("/my-profile")
+    public ResponseEntity<ResponseData> getMyProfile(HttpServletRequest request) {
+        String token = jwtUtil.extractTokenFromRequest(request);
+        String userId = jwtUtil.extractUserId(token);   // Lấy userId từ subject
+        String email = jwtUtil.extractEmail(token);     // Lấy email từ claim "email"
+    
+        // Lấy thông tin user từ userId (hoặc email)
+        Optional<User> userOpt = userService.getUserById(userId);
+        if (userOpt.isPresent()) {
+            return ResponseEntity.ok(new ResponseData("Success", 200, 0, userOpt.get()));
+        } else {
+            return ResponseEntity.status(404).body(new ResponseData("User not found", 404, 1001, null));
+        }
+    }
+
     // Tạo người dùng mới
     @PostMapping
     public ResponseEntity<ResponseData> createUser(@RequestBody User user) {
@@ -59,7 +81,7 @@ public class UserController {
     // Cập nhật thông tin người dùng theo ID
     @PutMapping("/{id}")
     public ResponseEntity<ResponseData> updateUser(@PathVariable String id, @RequestBody User updatedUser) {
-    ResponseData response = userService.updateUser(id, updatedUser);
-    return ResponseEntity.status(response.getStatusCode()).body(response);
-}
+        ResponseData response = userService.updateUser(id, updatedUser);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
 }
