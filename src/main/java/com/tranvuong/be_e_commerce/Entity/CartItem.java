@@ -2,7 +2,11 @@ package com.tranvuong.be_e_commerce.Entity;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -21,17 +25,21 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartItem {
     @Id
-    String id;
-    
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String id;
+
     @ManyToOne
-    @JoinColumn(name = "cart_id", referencedColumnName = "id")
+    @JsonIgnore
+    @JoinColumn(name = "cart_id")
     private Cart cart;
-    
+
+    // Nếu có entity Product
     @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    Product product;
-    
-    Double quantity;
-    Double total_price;
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    private int quantity;
+    private double price;
+
     LocalDate created_at;
 }
