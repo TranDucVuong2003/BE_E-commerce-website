@@ -42,9 +42,9 @@ public class CartController {
     }
 
     // 4. Xóa sản phẩm khỏi giỏ hàng
-    @DeleteMapping("/remove")
-    public ResponseEntity<ResponseData> removeCartItem(@RequestParam String cartItemId) {
-        ResponseData deleted = cartService.removeCartItem(cartItemId);
+    @DeleteMapping("/remove/{id}")
+    public ResponseEntity<ResponseData> removeCartItem(@PathVariable String id) {
+        ResponseData deleted = cartService.removeCartItem(id);
         return ResponseEntity.status(deleted.getStatusCode()).body(deleted);
     }
 
