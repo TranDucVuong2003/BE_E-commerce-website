@@ -45,14 +45,14 @@ public class CartServiceImpl implements CartService {
         return new ResponseData("Get Cart Successfully", 200, 200, cart);
     }
 
-    public ResponseData addCartItem(String cartId, String productId, int quantity, double price) {
+    public ResponseData addCartItem(String cartId, String productId, int quantity, double price, String size) {
         Cart cart = cartRepository.findById(cartId).orElse(null);
         Product product = productRepository.findById(productId).orElse(null);
         if (cart == null || product == null)
             return new ResponseData("Cart or product not found", 404, 404, null);
 
-        // Kiểm tra sản phẩm đã có trong giỏ chưa
-        CartItem existingItem = cartItemRepository.findByCartAndProduct(cart, product);
+        // Kiểm tra sản phẩm đã có trong giỏ chưa (theo cả size)
+        CartItem existingItem = cartItemRepository.findByCartAndProductAndSize(cart, product, size);
         if (existingItem != null) {
             existingItem.setQuantity(existingItem.getQuantity() + quantity);
             cartItemRepository.save(existingItem);
@@ -64,6 +64,7 @@ public class CartServiceImpl implements CartService {
         cartItem.setProduct(product);
         cartItem.setQuantity(quantity);
         cartItem.setPrice(price);
+        cartItem.setSize(size);
         cartItem.setCreated_at(LocalDate.now());
 
         CartItem savedCartItem = cartItemRepository.save(cartItem);

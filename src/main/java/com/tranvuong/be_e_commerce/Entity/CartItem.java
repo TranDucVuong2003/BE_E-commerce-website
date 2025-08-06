@@ -41,5 +41,6 @@ public class CartItem {
     private int quantity;
     private double price;
 
+    private String size;
     LocalDate created_at;
 }

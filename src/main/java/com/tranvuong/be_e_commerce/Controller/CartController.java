@@ -27,8 +27,9 @@ public class CartController {
             @RequestParam String cartId,
             @RequestParam String productId,
             @RequestParam int quantity,
-            @RequestParam double price) {
-        ResponseData addCart = cartService.addCartItem(cartId, productId, quantity, price);
+            @RequestParam double price,
+            @RequestParam String size) {
+        ResponseData addCart = cartService.addCartItem(cartId, productId, quantity, price, size);
         return ResponseEntity.status(addCart.getStatusCode()).body(addCart);
     }
 
