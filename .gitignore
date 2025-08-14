@@ -34,3 +34,4 @@ build/
 
 # Upload directory
 upload/
+.env
